@@ -4,7 +4,7 @@ def validate(check_type, check_string):
     PATTERN_NAME = re.compile(r"[A-Za-z]+(?:[ '-][A-Za-z]+){0,3}$")
     PATTERN_MOBILE = re.compile(r'^[789]\d{9}$')
     PATTERN_PAN = re.compile(r'^[A-Z]{5}\d{4}[A-Z]$')
-    PATTERN_AADHAAR = re.compile(r'^2+(\d{4}[- ].?){3}$')
+    PATTERN_AADHAAR = re.compile(r'^(\d{4}[- ]?){3}$')
 
     validation_types = {
     'name': {"pattern": PATTERN_NAME,
