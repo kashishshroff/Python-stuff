@@ -9,39 +9,42 @@
 
 
 class Date:
-
-    months = {1:31,2:28,3:31,4:30,5:31,6:30,7:31,8:31,9:30,10:31,11:30,12:31}
-    
-    def __init__(self,day,month,year):
+    def __init__(self, day, month, year):
         self.day = int(day)
         self.month = int(month)
         self.year = int(year)
 
-    def val_date(day,month,year):
-        
-        while day > 365 or month > 12: 
-            while day > months[month]:
-                day = day % months[month]
-                month = day // months[month]
-                #check if day is still > than months[month]
+    def __str__(self):
+        return f"{self.day:02d}-{self.month:02d}-{self.year}"
 
-            while month > 12:
-                month = month % 12
-                year = month // 12
-                #check if month is still> than 12
-                
-        return day,month,year
-        
+    def is_leap_year(self, year):
+        return (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
 
-    def __add__(self,other):
-        day = self.day + other.day
-        month = self.month + other.month
-        year = self.year + other.year
+    def days_in_month(self, month, year):
+        if month in [1, 3, 5, 7, 8, 10, 12]:
+            return 31
+        elif month in [4, 6, 9, 11]:
+            return 30
+        elif month == 2:
+            return 29 if self.is_leap_year(year) else 28
+        return 0
 
-        day,month,year = Date.val_date(day,month,year)        
+    def __add__(self, other):
+        if isinstance(other, int) and other == 1:  # We're only adding 1 day
+            new_day = self.day + 1
+            new_month = self.month
+            new_year = self.year
+
+            if new_day > self.days_in_month(new_month, new_year):
+                new_day = 1
+                new_month += 1
+                if new_month > 12:
+                    new_month = 1
+                    new_year += 1
+
+            return Date(new_day, new_month, new_year)
 
 
-        return Date(day,month,year)
 
 
 print("Enter day,month,year in dd/mm/yyyy format :")
@@ -49,18 +52,7 @@ day = input("")
 month = input("")
 year = input("")
 
-d1 = Date(day,month,year)
-print(f"{d1.day}/{d1.month}/{d1.year}")
-
-print("Enter day,month,year in dd/mm/yyyy format :")
-day = input("")
-month = input("")
-year = input("")
-
-d2 = Date(day,month,year)
-print(f"{d2.day}/{d2.month}/{d2.year}")
-
-
-d3 = d1 + d2
-print("ADD d1 + d2 : ")
-print(f"{d3.day}/{d3.month}/{d3.year}")
+today = Date(day,month,year)
+tomorrow = today + 1
+print(f"Today's date: {today}")
+print(f"Tomorrow's date: {tomorrow}")
