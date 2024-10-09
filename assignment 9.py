@@ -4,32 +4,59 @@ class Student:
     regno
     name        
 
-    def setRegNo(self):
-        return self.s1 + self.s2 + self.s3 + self.s4
-
-    def setName(self):
+    def setRegNo(self,regno):
+        self.regno = regno
+        
+    def setName(self,name):
+        self.name = name
 
     def getRegNo(self):
+        return self.regno
 
     def getName(self):
+        return self.name
+
+class Exam:
+    examno
+    pattern
+    semister
+
+    def setData(self,examno,pattern,semister):
+        self.examno = examno
+        self.pattern = pattern
+        self.semister = semister
+
+    def getData(self):
+        return self.examno,self.pattern,self.semister
 
 
-class Square(Quad):
-    def __init__(self,s1):
-        super().__init__(s1,s1,s1,s1)
+class Result(Student,Exam):
+    phy
+    math
+    chem 
+    def setMarks(self,phy,math,chem):
+        self.phy = phy
+        self.math = math
+        self.chem = chem
 
-    def perimeter(self):
-        return super().perimeter()
+    def getMarks(self):
+        return self.phy,self.math,self.chem
 
-    def area(self):
-        return self.s1**2
+    def calResultGrade(self):
+        sum = self.phy + self.math + self.chem
+        total = 100*3
 
-class Rectangle(Quad):
-    def __init__(self,s1,s2):
-        super().__init__(s1,s2,s1,s2)
+        perc = sum/total*100
+        if perc <= 100 and perc > 80:
+            return 'A'
+        if perc <= 80 and perc > 60:
+            return 'B'
+        if perc <= 60 and perc > 40:
+            return 'C'
+        if perc <= 40 and perc > 20:
+            return 'D'
+        if perc <= 20:
+            return 'F'
+        
 
-    def perimeter(self):
-        return super().perimeter()
 
-    def area(self):
-        return self.s1 * self.s2
