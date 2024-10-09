@@ -2,3 +2,4 @@ empid department salary
 101 maths 10000
 102 science 12000
 103 commerce 20000
+104 english 4000
