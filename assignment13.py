@@ -9,90 +9,154 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-#CREATE TABLE
-##sql = "CREATE TABLE customers (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), address VARCHAR(255))"
-##
+#Uncomment if you need to create the tables
+##sql = """CREATE TABLE department(
+##        deptid INT AUTO_INCREMENT PRIMARY KEY,
+##        deptname VARCHAR(25), location VARCHAR(50))"""
 ##mycursor.execute(sql)
-##mydb.commit()
+##
+##sql = """CREATE TABLE employee(
+##        empid INT AUTO_INCREMENT PRIMARY KEY,
+##        empname VARCHAR(25),
+##        salary INT(5),
+##        deptid INT,
+##        FOREIGN KEY (deptid) REFERENCES department(deptid))"""
+##mycursor.execute(sql)
 
-#INSERT
-def insert(name,address):
+# INSERT function
+def insert(table, values):
     
-    sql = "INSERT INTO customers (name,address) VALUES (%s,%s)"
-    val = (name,address)
-    mycursor.execute(sql,val)
-    mydb.commit() #important
+    if table.lower() == 'department':
+        sql = "INSERT INTO department (deptname, location) VALUES (%s, %s)"
+    elif table.lower() == 'employee':
+        sql = "INSERT INTO employee (empname, salary, deptid) VALUES (%s, %s,%s)"
+    else:
+        print("Invalid table name.")
+        return
+    mycursor.execute(sql, values)
+    mydb.commit()
+    print(mycursor.rowcount, "record(s) inserted.")
 
-    print(mycursor.rowcount, "record inserted.")
-
-#SELECT
-
-def select():
-
-    sql ="SELECT * FROM customers"
+# SELECT function
+def select(table):
+    sql = f"SELECT * FROM {table}"
     mycursor.execute(sql)
-    
     result = mycursor.fetchall()
-    for n in result:
-        print(n)
-    
-#UPDATE
+    for row in result:
+        print(row)
 
-def update(scolumn, svalue, wcolumn, wvalue):
-    sql = f"UPDATE customers SET {scolumn} = %s WHERE {wcolumn} = %s"
-    val = (svalue, wvalue)
+# UPDATE function
+def update(table, set_column, set_value, where_column, where_value):
+    sql = f"UPDATE {table} SET {set_column} = %s WHERE {where_column} = %s"
+    val = (set_value, where_value)
     mycursor.execute(sql, val)
     mydb.commit()
+    print(mycursor.rowcount, "record(s) updated.")
 
-    print(mycursor.rowcount, "record(s) updated")
-    
-#DELETE
-
-def delete(wcolumn,wvalue):
-
-    sql = f"DELETE FROM customers WHERE {wcolumn} = %s"
-    val = (wvalue,)
-    mycursor.execute(sql,val)
+# DELETE function
+def delete(table, where_column, where_value):
+    sql = f"DELETE FROM {table} WHERE {where_column} = %s"
+    val = (where_value,)
+    mycursor.execute(sql, val)
     mydb.commit()
+    print(mycursor.rowcount, "record(s) deleted.")
 
-    print(mycursor.rowcount,"record(s) deleted")
-
-#MAIN---------------------------------------------
-
-def main():
-
-    choice = 1
-
-    while int(choice) <=4:
-        choice = input(" 1.Insert \n 2.Select \n 3.Update \n 4.Delete \n 5.Exit \n")
-        choice = int(choice)
-
-        if choice == 1:
-            
-            print("INSERT")
-            name = input("Enter name of customer :")
-            address = input("Enter address of customer :")
-            insert(name,address)
-            
-        if choice == 2:
-            select()
-            
-        if choice == 3:
-            
-            print("UPDATE")
-            scolumn = input("Enter  SET col of customer :")
-            svalue = input("Enter SET value:")
-
-            wcolumn = input("Enter  WHERE col of customer :")
-            wvalue = input("Enter  WHERE value:")
-            update(scolumn,svalue,wcolumn,wvalue)
-            
-        if choice == 4:
-
-            print("DELETE")
-            wcolumn = input("Enter  WHERE col of customer :")
-            wvalue = input("Enter  WHERE value:")
-            delete(wcolumn,wvalue)
-            
+#REPORTS    
+def generate_reports():
+    print("1. List all Employees and their Department Names")
+    print("2. List all Departments and their Employee Count")
+    choice = int(input("Enter your choice: "))
+    
+    if choice == 1:
+        query = """SELECT e.empid, e.empname, d.deptname 
+                   FROM Employee e 
+                   JOIN Department d ON e.deptid = d.deptid"""
         
+    elif choice == 2:
+        query = """SELECT d.deptid, d.deptname, COUNT(e.empid) 
+                   FROM Department d 
+                   LEFT JOIN Employee e ON d.deptid = e.deptid 
+                   GROUP BY d.deptid, d.deptname"""
+    mycursor.execute(query)
+    for row in mycursor.fetchall():
+        print(row)
+# Main Menu
+def main():
+    while True:
+        print("\nCRUD Operations Menu:")
+        print("1. Insert")
+        print("2. Select")
+        print("3. Update")
+        print("4. Delete")
+        print("5. Reports")
+        print("6. Exit")
+        choice = input("Enter your choice: ")
+        
+        if choice == '1':
+            table = input("Insert into which table (1.department/2.employee): ")
+
+            if table == '1':
+                table = 'department'
+            if table == '2':
+                table = 'employee'
+            
+            if table == 'department':
+                name = input("Enter department name: ")
+                location = input("Enter location: ")
+                insert(table, (name, location))
+                
+            elif table == 'employee':
+                name = input("Enter employee name: ")
+                salary = input("Enter salary: ")
+                deptid = input("Enter deptid: ")
+                insert(table, (name, salary,deptid))
+            else:
+                print("Invalid table choice.")
+        
+        elif choice == '2':
+            table = input("Select from which table (1.department/2.employee): ")
+            
+            if table == '1':
+                table = 'department'
+            if table == '2':
+                table = 'employee'
+            select(table)
+        
+        elif choice == '3':
+            table = input("Update which table (department/employee): ")
+
+            if table == '1':
+                table = 'department'
+            if table == '2':
+                table = 'employee'
+            
+            set_column = input("Enter column to update: ")
+            set_value = input("Enter new value: ")
+            where_column = input("Enter column for WHERE clause: ")
+            where_value = input("Enter value for WHERE clause: ")
+            update(table, set_column, set_value, where_column, where_value)
+        
+        elif choice == '4':
+            table = input("Delete from which table (1.department/2.employee): ")
+
+            if table == '1':
+                table = 'department'
+            if table == '2':
+                table = 'employee'
+            
+            where_column = input("Enter column for WHERE clause: ")
+            where_value = input("Enter value for WHERE clause: ")
+            delete(table, where_column, where_value)
+
+        elif choice == '5':
+            generate_reports()
+        
+        elif choice == '6':
+            print("Exiting...")
+            break
+        
+        else:
+            print("Invalid choice, please try again.")
+
+
 main()
